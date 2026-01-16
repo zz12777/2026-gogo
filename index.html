@@ -13,6 +13,9 @@
         body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 0; }
         #identity-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #222; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
         .id-card { padding: 30px; border-radius: 20px; cursor: pointer; text-align: center; transition: 0.3s; margin: 10px; border: 3px solid transparent; width: 150px; }
+        .pass-box { background: #333; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; border: 1px solid #444; }
+        .pass-box input { padding: 10px; border-radius: 5px; border: none; margin-bottom: 10px; text-align: center; font-size: 1rem; }
+        .pass-box button { padding: 10px 20px; border-radius: 5px; border: none; background: var(--success); color: white; cursor: pointer; font-weight: bold; }
         .tabs { display: flex; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
         .tab.active { border-bottom: 3px solid #333; color: #333; }
@@ -43,10 +46,18 @@
 <body>
 
 <div id="identity-screen">
-    <h1>2026 gogo - 身份確認</h1>
-    <div style="display:flex;">
-        <div class="id-card" style="background: var(--chuchu-main)" onclick="startApp('chuchu')"><h2>chuchu 👧</h2></div>
-        <div class="id-card" style="background: var(--eddie-main)" onclick="startApp('eddie')"><h2>Eddie 👦</h2></div>
+    <h1>2026 gogo</h1>
+    <div id="password-area" class="pass-box">
+        <p>請輸入通關密語</p>
+        <input type="password" id="start-pass" placeholder="Password..."><br>
+        <button onclick="checkPassword()">驗證進入</button>
+    </div>
+    <div id="id-selection-area" style="display:none; text-align: center;">
+        <p>密碼正確！請選擇身份：</p>
+        <div style="display:flex;">
+            <div class="id-card" style="background: var(--chuchu-main)" onclick="startApp('chuchu')"><h2>chuchu 👧</h2></div>
+            <div class="id-card" style="background: var(--eddie-main)" onclick="startApp('eddie')"><h2>Eddie 👦</h2></div>
+        </div>
     </div>
 </div>
 
@@ -120,7 +131,7 @@
 
 <section id="tab-2" class="content-section">
     <div id="current-info-display" class="header-goal">正在載入數據...</div>
-    <div class="dual-layout">
+    <div class="dual-layout" id="layout-2">
         <div class="user-box box-chuchu card" id="main-chuchu">
             <h4 id="today-goal-A">chuchu 的目標</h4>
             <div class="progress-container"><div id="bar-A" class="progress-bar"></div></div>
@@ -166,13 +177,19 @@
         { title: "練英文", unit: "分鐘", total: 100 }
     ];
 
+    window.checkPassword = () => {
+        if (document.getElementById('start-pass').value === "brochi") {
+            document.getElementById('password-area').style.display = 'none';
+            document.getElementById('id-selection-area').style.display = 'block';
+        } else { alert("密碼錯誤唷老哥！"); }
+    };
+
     window.startApp = (user) => {
         me = user;
         document.getElementById('identity-screen').style.display = 'none';
-        const today = new Date();
-        const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
         selectedP = (diffDays >= 0) ? Math.min(Math.floor(diffDays / 10) + 1, 36) : 1;
-
+        
         if (me === 'eddie') {
             document.getElementById('box-annual-eddie').classList.add('order-first');
             document.getElementById('box-phase-eddie').classList.add('order-first');
@@ -182,12 +199,7 @@
             document.getElementById('box-phase-chuchu').classList.add('order-first');
             document.getElementById('main-chuchu').classList.add('order-first');
         }
-
-        initGrids();
-        listenToCloud();
-        applyPermissions();
-        loadPhaseData(selectedP);
-        showTab(2);
+        initGrids(); listenToCloud(); applyPermissions(); loadPhaseData(selectedP); showTab(2);
     };
 
     function applyPermissions() {
@@ -200,8 +212,7 @@
 
     function initGrids() {
         ['gridA', 'gridB'].forEach(id => {
-            const container = document.getElementById(id);
-            container.innerHTML = "";
+            const container = document.getElementById(id); container.innerHTML = "";
             for (let i = 1; i <= 36; i++) {
                 const btn = document.createElement('div');
                 btn.className = 'phase-btn' + (i === selectedP ? ' selected' : '');
@@ -209,10 +220,8 @@
                 let d10 = new Date(d); d10.setDate(d.getDate() + 9);
                 btn.innerHTML = `<b>P${i}</b><br><small>${d.getMonth()+1}/${d.getDate()}~${d10.getMonth()+1}/${d10.getDate()}</small>`;
                 btn.onclick = () => {
-                    selectedP = i;
-                    document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    loadPhaseData(i);
+                    selectedP = i; document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected'); loadPhaseData(i);
                 };
                 container.appendChild(btn);
             }
@@ -221,40 +230,28 @@
 
     async function loadPhaseData(p) {
         document.getElementById('phase-title-setting').innerText = `正在設定：第 ${p} 階段`;
-        document.getElementById('config-A').style.display = 'block';
-        document.getElementById('config-B').style.display = 'block';
+        document.getElementById('config-A').style.display = 'block'; document.getElementById('config-B').style.display = 'block';
         const snap = await getDoc(doc(db, "gogo", `phase_${p}`));
         const data = snap.exists() ? snap.data() : {};
-        updatePhaseUI('A', data.chuchu);
-        updatePhaseUI('B', data.eddie);
-        renderDaily('A', data.chuchu, data[`recordsA`]);
-        renderDaily('B', data.eddie, data[`recordsB`]);
+        updatePhaseUI('A', data.chuchu); updatePhaseUI('B', data.eddie);
+        renderDaily('A', data.chuchu, data[`recordsA`]); renderDaily('B', data.eddie, data[`recordsB`]);
     }
 
     function updatePhaseUI(suffix, pData) {
         const display = document.getElementById(`goal-display-${suffix}`);
         const inputArea = document.getElementById(`goal-input-${suffix}`);
         const editBtn = document.getElementById(`edit-btn-${suffix}`);
-        const myIdPart = (suffix === 'A' ? 'chuchu' : 'eddie'); // 修正大小寫匹配
-
-        // 清空輸入框
-        document.getElementById(`t-${suffix}`).value = "";
-        document.getElementById(`u-${suffix}`).value = "";
-        document.getElementById(`l-${suffix}`).value = "";
+        const myPart = (suffix === 'A' ? 'chuchu' : 'eddie');
+        document.getElementById(`t-${suffix}`).value = ""; document.getElementById(`u-${suffix}`).value = ""; document.getElementById(`l-${suffix}`).value = "";
 
         if (pData && pData.target) {
             display.innerText = `${pData.target} (${pData.total} ${pData.unit})`;
-            display.style.display = 'block';
-            inputArea.style.display = 'none';
-            editBtn.style.display = (me === myIdPart) ? 'block' : 'none';
+            display.style.display = 'block'; inputArea.style.display = 'none';
+            editBtn.style.display = (me === myPart) ? 'block' : 'none';
             document.getElementById(`today-goal-${suffix}`).innerText = `${suffix === 'A' ? 'chuchu' : 'Eddie'} 的目標：${pData.target}`;
         } else {
-            display.style.display = 'none';
-            inputArea.style.display = (me === myIdPart) ? 'block' : 'none';
-            editBtn.style.display = 'none';
+            display.style.display = 'none'; inputArea.style.display = (me === myPart) ? 'block' : 'none'; editBtn.style.display = 'none';
             document.getElementById(`today-goal-${suffix}`).innerText = "尚未設定目標";
-            
-            // 重新抽隨機範例
             const ex = goalExamples[Math.floor(Math.random() * goalExamples.length)];
             document.getElementById(`t-${suffix}`).placeholder = "範例：" + ex.title;
             document.getElementById(`u-${suffix}`).placeholder = ex.unit;
@@ -264,42 +261,26 @@
 
     window.savePhase = async (user) => {
         const suffix = user === 'chuchu' ? 'A' : 'B';
-        const t = document.getElementById(`t-${suffix}`);
-        const u = document.getElementById(`u-${suffix}`);
-        const l = document.getElementById(`l-${suffix}`);
-        const target = t.value || t.placeholder.replace("範例：", "");
-        const unit = u.value || u.placeholder;
-        const total = l.value || l.placeholder;
-        await setDoc(doc(db, "gogo", `phase_${selectedP}`), {
-            [user]: { target, unit, total }
-        }, { merge: true });
-        loadPhaseData(selectedP);
-        showTab(2);
-    };
-
-    window.unlockEdit = (suffix) => {
-        document.getElementById(`goal-input-${suffix}`).style.display = 'block';
-        document.getElementById(`goal-display-${suffix}`).style.display = 'none';
-        document.getElementById(`edit-btn-${suffix}`).style.display = 'none';
+        const t = document.getElementById(`t-${suffix}`); const u = document.getElementById(`u-${suffix}`); const l = document.getElementById(`l-${suffix}`);
+        const target = t.value || t.placeholder.replace("範例：", ""); const unit = u.value || u.placeholder; const total = l.value || l.placeholder;
+        await setDoc(doc(db, "gogo", `phase_${selectedP}`), { [user]: { target, unit, total } }, { merge: true });
+        loadPhaseData(selectedP); showTab(2);
     };
 
     window.renderDaily = (suffix, pData, savedRecords) => {
-        const container = document.getElementById('list' + suffix);
-        container.innerHTML = "";
-        const unit = pData?.unit || "值";
-        const total = pData?.total || 0;
+        const container = document.getElementById('list' + suffix); container.innerHTML = "";
+        const unit = pData?.unit || "值"; const total = Number(pData?.total) || 0;
         const isEditable = (me === (suffix === 'A' ? 'chuchu' : 'eddie'));
         let phaseStart = new Date(startDate); phaseStart.setDate(startDate.getDate() + (selectedP - 1) * 10);
         for (let d = 0; d < 10; d++) {
-            const savedNote = savedRecords?.[d]?.note || "";
-            const savedVal = savedRecords?.[d]?.val || "";
+            const savedNote = savedRecords?.[d]?.note || ""; const savedVal = savedRecords?.[d]?.val || "";
             let dDate = new Date(phaseStart); dDate.setDate(phaseStart.getDate() + d);
             const dateStr = `${dDate.getMonth()+1}/${dDate.getDate()} (${["日","一","二","三","四","五","六"][dDate.getDay()]})`;
             container.innerHTML += `
-                <div class="day-row">
+                <div class="day-row" data-day="${d}">
                     <div style="font-size:0.8rem; width:80px;">D${d+1}<br>${dateStr}</div>
-                    <textarea ${!isEditable ? 'disabled' : ''} onchange="saveDayRecord('${suffix}', ${d})" style="flex:1; height:40px;">${savedNote}</textarea>
-                    <input type="number" ${!isEditable ? 'disabled' : ''} oninput="updateProgUI('${suffix}', ${total})" onchange="saveDayRecord('${suffix}', ${d})" style="width:50px;" value="${savedVal}">
+                    <textarea ${!isEditable ? 'disabled' : ''} onchange="saveDayRecord('${suffix}')" style="flex:1; height:40px;">${savedNote}</textarea>
+                    <input type="number" ${!isEditable ? 'disabled' : ''} oninput="updateProgUI('${suffix}', ${total})" onchange="saveDayRecord('${suffix}')" style="width:50px;" value="${savedVal}">
                     <span style="font-size:0.7rem; align-self:center;">${unit}</span>
                 </div>`;
         }
@@ -307,16 +288,15 @@
         document.getElementById('current-info-display').innerText = `正在查看：第 ${selectedP} 階段`;
     };
 
-    window.saveDayRecord = async (suffix, dayIdx) => {
+    window.saveDayRecord = async (suffix) => {
         const rows = document.querySelectorAll(`#list${suffix} .day-row`);
-        const note = rows[dayIdx].querySelector('textarea').value;
-        const val = rows[dayIdx].querySelector('input').value;
-        const docRef = doc(db, "gogo", `phase_${selectedP}`);
-        const snap = await getDoc(docRef);
-        let currentData = snap.exists() ? snap.data() : {};
-        let records = currentData[`records${suffix}`] || {};
-        records[dayIdx] = { note, val };
-        await updateDoc(docRef, { [`records${suffix}`]: records });
+        let records = {};
+        rows.forEach(row => {
+            const d = row.getAttribute('data-day');
+            records[d] = { note: row.querySelector('textarea').value, val: row.querySelector('input').value };
+        });
+        // 強制使用 setDoc + merge 確保即使文件不存在也能建立
+        await setDoc(doc(db, "gogo", `phase_${selectedP}`), { [`records${suffix}`]: records }, { merge: true });
     };
 
     window.updateProgUI = (s, total) => {
@@ -330,12 +310,9 @@
     function listenToCloud() {
         onSnapshot(doc(db, "gogo", "global"), (snap) => {
             if (!snap.exists()) return;
-            const data = snap.data();
-            updateAnnualUI('chuchu', data.annual_chuchu);
-            updateAnnualUI('eddie', data.annual_eddie);
+            const data = snap.data(); updateAnnualUI('chuchu', data.annual_chuchu); updateAnnualUI('eddie', data.annual_eddie);
             if(data.nudgeTarget === me) {
-                const panel = document.getElementById('main-' + me);
-                panel.classList.add('shaking');
+                const panel = document.getElementById('main-' + me); panel.classList.add('shaking');
                 setTimeout(() => panel.classList.remove('shaking'), 3000);
                 updateDoc(doc(db, "gogo", "global"), { nudgeTarget: null });
             }
@@ -349,34 +326,20 @@
 
     window.unlockAnnual = (user) => {
         if (me !== user) return;
-        document.getElementById(`annual-input-box-${user}`).style.display = 'block';
-        document.getElementById(`annual-display-${user}`).style.display = 'none';
-        document.getElementById(`annual-edit-${user}`).style.display = 'none';
+        document.getElementById(`annual-input-box-${user}`).style.display = 'block'; document.getElementById(`annual-display-${user}`).style.display = 'none'; document.getElementById(`annual-edit-${user}`).style.display = 'none';
     };
 
     function updateAnnualUI(user, val) {
-        const display = document.getElementById(`annual-display-${user}`);
-        const inputBox = document.getElementById(`annual-input-box-${user}`);
-        const editBtn = document.getElementById(`annual-edit-${user}`);
-        const input = document.getElementById(`annual-input-${user}`);
-        if (val) {
-            display.innerText = val; display.style.display = 'block'; inputBox.style.display = 'none';
-            editBtn.style.display = (me === user) ? 'block' : 'none';
-        } else {
-            display.style.display = 'none'; inputBox.style.display = (me === user) ? 'block' : 'none'; editBtn.style.display = 'none';
-        }
+        const display = document.getElementById(`annual-display-${user}`); const inputBox = document.getElementById(`annual-input-box-${user}`);
+        const editBtn = document.getElementById(`annual-edit-${user}`); const input = document.getElementById(`annual-input-${user}`);
+        if (val) { display.innerText = val; display.style.display = 'block'; inputBox.style.display = 'none'; editBtn.style.display = (me === user) ? 'block' : 'none';
+        } else { display.style.display = 'none'; inputBox.style.display = (me === user) ? 'block' : 'none'; editBtn.style.display = 'none'; }
         input.value = val || "";
     }
 
-    window.sendNudge = async (target) => {
-        await updateDoc(doc(db, "gogo", "global"), { nudgeTarget: target });
-        alert("已發送提醒！");
-    };
-
-    window.showTab = (i) => {
-        document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
-        document.querySelectorAll('.content-section').forEach((s, idx) => s.classList.toggle('active', idx === i));
-    };
+    window.sendNudge = async (target) => { await updateDoc(doc(db, "gogo", "global"), { nudgeTarget: target }); alert("已發送提醒！"); };
+    window.showTab = (i) => { document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i)); document.querySelectorAll('.content-section').forEach((s, idx) => s.classList.toggle('active', idx === i)); };
+    window.unlockEdit = (suffix) => { document.getElementById(`goal-input-${suffix}`).style.display = 'block'; document.getElementById(`goal-display-${suffix}`).style.display = 'none'; document.getElementById(`edit-btn-${suffix}`).style.display = 'none'; };
 </script>
 </body>
 </html>
