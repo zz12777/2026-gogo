@@ -19,15 +19,9 @@
         .content-section { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; }
         .content-section.active { display: block; }
         .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        
-        /* 佈局核心：使用 order 控制順序 */
         .dual-layout { display: flex; gap: 20px; flex-wrap: wrap; }
         .user-box { flex: 1; min-width: 320px; border-radius: 15px; }
-        
-        /* 當身份是 Eddie 時，給予不同的 order 值 */
         .order-first { order: -1; }
-        .order-last { order: 1; }
-
         .box-chuchu { background-color: var(--chuchu-bg); border-top: 8px solid var(--chuchu-main); }
         .box-eddie { background-color: var(--eddie-bg); border-top: 8px solid var(--eddie-main); }
         .grid-36 { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 15px; }
@@ -64,13 +58,13 @@
 
 <section id="tab-0" class="content-section active">
     <h2>🗓 2026 年度願景板</h2>
-    <div class="dual-layout" id="layout-0">
+    <div class="dual-layout">
         <div class="user-box box-chuchu card" id="box-annual-chuchu">
             <h3>chuchu 年度目標</h3>
             <div id="annual-display-chuchu" class="display-goal-text" style="display:none; min-height:100px;"></div>
             <div id="annual-input-box-chuchu">
                 <textarea id="annual-input-chuchu" style="width:100%; height:200px;" placeholder="寫下年度大目標..."></textarea>
-                <button onclick="saveAnnual('chuchu')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存年度目標</button>
+                <button onclick="saveAnnual('chuchu')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px;">儲存年度目標</button>
             </div>
             <button id="annual-edit-chuchu" onclick="unlockAnnual('chuchu')" style="display:none; width:100%; margin-top:5px;">修改年度目標</button>
         </div>
@@ -79,7 +73,7 @@
             <div id="annual-display-eddie" class="display-goal-text" style="display:none; min-height:100px;"></div>
             <div id="annual-input-box-eddie">
                 <textarea id="annual-input-eddie" style="width:100%; height:200px;" placeholder="寫下年度大目標..."></textarea>
-                <button onclick="saveAnnual('eddie')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存年度目標</button>
+                <button onclick="saveAnnual('eddie')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px;">儲存年度目標</button>
             </div>
             <button id="annual-edit-eddie" onclick="unlockAnnual('eddie')" style="display:none; width:100%; margin-top:5px;">修改年度目標</button>
         </div>
@@ -88,7 +82,7 @@
 
 <section id="tab-1" class="content-section">
     <div class="header-goal" id="phase-title-setting">請選擇一個階段</div>
-    <div class="dual-layout" id="layout-1">
+    <div class="dual-layout">
         <div class="user-box box-chuchu card" id="box-phase-chuchu">
             <h3>chuchu 階段設定</h3>
             <div class="grid-36" id="gridA"></div>
@@ -126,7 +120,7 @@
 
 <section id="tab-2" class="content-section">
     <div id="current-info-display" class="header-goal">正在載入數據...</div>
-    <div class="dual-layout" id="layout-2">
+    <div class="dual-layout">
         <div class="user-box box-chuchu card" id="main-chuchu">
             <h4 id="today-goal-A">chuchu 的目標</h4>
             <div class="progress-container"><div id="bar-A" class="progress-bar"></div></div>
@@ -178,8 +172,7 @@
         const today = new Date();
         const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
         selectedP = (diffDays >= 0) ? Math.min(Math.floor(diffDays / 10) + 1, 36) : 1;
-        
-        // --- 核心改動：調整區塊順序 ---
+
         if (me === 'eddie') {
             document.getElementById('box-annual-eddie').classList.add('order-first');
             document.getElementById('box-phase-eddie').classList.add('order-first');
@@ -228,6 +221,8 @@
 
     async function loadPhaseData(p) {
         document.getElementById('phase-title-setting').innerText = `正在設定：第 ${p} 階段`;
+        document.getElementById('config-A').style.display = 'block';
+        document.getElementById('config-B').style.display = 'block';
         const snap = await getDoc(doc(db, "gogo", `phase_${p}`));
         const data = snap.exists() ? snap.data() : {};
         updatePhaseUI('A', data.chuchu);
@@ -240,19 +235,26 @@
         const display = document.getElementById(`goal-display-${suffix}`);
         const inputArea = document.getElementById(`goal-input-${suffix}`);
         const editBtn = document.getElementById(`edit-btn-${suffix}`);
-        const myName = (suffix === 'A' ? 'chuchu' : 'Eddie');
+        const myIdPart = (suffix === 'A' ? 'chuchu' : 'eddie'); // 修正大小寫匹配
+
+        // 清空輸入框
         document.getElementById(`t-${suffix}`).value = "";
         document.getElementById(`u-${suffix}`).value = "";
         document.getElementById(`l-${suffix}`).value = "";
 
         if (pData && pData.target) {
             display.innerText = `${pData.target} (${pData.total} ${pData.unit})`;
-            display.style.display = 'block'; inputArea.style.display = 'none';
-            editBtn.style.display = (me === myName) ? 'block' : 'none';
-            document.getElementById(`today-goal-${suffix}`).innerText = `${myName} 的目標：${pData.target}`;
+            display.style.display = 'block';
+            inputArea.style.display = 'none';
+            editBtn.style.display = (me === myIdPart) ? 'block' : 'none';
+            document.getElementById(`today-goal-${suffix}`).innerText = `${suffix === 'A' ? 'chuchu' : 'Eddie'} 的目標：${pData.target}`;
         } else {
-            display.style.display = 'none'; inputArea.style.display = (me === myName) ? 'block' : 'none';
-            editBtn.style.display = 'none'; document.getElementById(`today-goal-${suffix}`).innerText = "尚未設定目標";
+            display.style.display = 'none';
+            inputArea.style.display = (me === myIdPart) ? 'block' : 'none';
+            editBtn.style.display = 'none';
+            document.getElementById(`today-goal-${suffix}`).innerText = "尚未設定目標";
+            
+            // 重新抽隨機範例
             const ex = goalExamples[Math.floor(Math.random() * goalExamples.length)];
             document.getElementById(`t-${suffix}`).placeholder = "範例：" + ex.title;
             document.getElementById(`u-${suffix}`).placeholder = ex.unit;
@@ -275,12 +277,18 @@
         showTab(2);
     };
 
+    window.unlockEdit = (suffix) => {
+        document.getElementById(`goal-input-${suffix}`).style.display = 'block';
+        document.getElementById(`goal-display-${suffix}`).style.display = 'none';
+        document.getElementById(`edit-btn-${suffix}`).style.display = 'none';
+    };
+
     window.renderDaily = (suffix, pData, savedRecords) => {
         const container = document.getElementById('list' + suffix);
         container.innerHTML = "";
         const unit = pData?.unit || "值";
         const total = pData?.total || 0;
-        const isEditable = (me === (suffix === 'A' ? 'chuchu' : 'Eddie'));
+        const isEditable = (me === (suffix === 'A' ? 'chuchu' : 'eddie'));
         let phaseStart = new Date(startDate); phaseStart.setDate(startDate.getDate() + (selectedP - 1) * 10);
         for (let d = 0; d < 10; d++) {
             const savedNote = savedRecords?.[d]?.note || "";
@@ -368,12 +376,6 @@
     window.showTab = (i) => {
         document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
         document.querySelectorAll('.content-section').forEach((s, idx) => s.classList.toggle('active', idx === i));
-    };
-
-    window.unlockEdit = (suffix) => {
-        document.getElementById(`goal-input-${suffix}`).style.display = 'block';
-        document.getElementById(`goal-display-${suffix}`).style.display = 'none';
-        document.getElementById(`edit-btn-${suffix}`).style.display = 'none';
     };
 </script>
 </body>
