@@ -10,47 +10,34 @@
             --eddie-bg: #f0f7ff; --eddie-main: #4a90e2;  
             --bg: #f8f9fa; --success: #2ecc71; --warn: #ff4d4d;
         }
-        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
-        
+        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 0; }
         #identity-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #222; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
         .id-card { padding: 30px; border-radius: 20px; cursor: pointer; text-align: center; transition: 0.3s; margin: 10px; border: 3px solid transparent; width: 150px; }
-        .id-card:hover { transform: scale(1.1); border-color: white; }
-
         .tabs { display: flex; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
         .tab.active { border-bottom: 3px solid #333; color: #333; }
-
-        .content-section { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; animation: fadeIn 0.5s; }
+        .content-section { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; }
         .content-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .dual-layout { display: flex; gap: 20px; flex-wrap: wrap; }
         .user-box { flex: 1; min-width: 320px; border-radius: 15px; }
-        
         .box-chuchu { background-color: var(--chuchu-bg); border-top: 8px solid var(--chuchu-main); }
         .box-eddie { background-color: var(--eddie-bg); border-top: 8px solid var(--eddie-main); }
-
         .grid-36 { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 15px; }
         .phase-btn { padding: 8px; border: 1px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; background: white; font-size: 0.8rem; }
         .phase-btn.selected { background: #333; color: white; }
-
-        .day-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .day-info { width: 85px; font-size: 0.85rem; color: #666; font-weight: bold; }
-        .day-diary { flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 8px; height: 40px; }
-        .day-value-input { width: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; }
-
-        .progress-container { background: #eee; border-radius: 20px; height: 20px; width: 100%; margin: 10px 0; overflow: hidden; }
-        .progress-bar { background: var(--success); height: 100%; width: 0%; transition: width 0.5s ease; }
-        
+        .day-row { display: flex; gap: 10px; padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .progress-container { background: #eee; border-radius: 20px; height: 15px; width: 100%; margin: 10px 0; overflow: hidden; }
+        .progress-bar { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
         .header-goal { background: #333; color: white; padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 15px; }
-        .input-group { margin-bottom: 10px; flex: 1; }
-        label { font-size: 0.9rem; font-weight: bold; display: block; margin-bottom: 5px; }
-        
         .nudge-btn { background: var(--warn); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: none; margin: 10px auto; font-weight: bold; }
-        .readonly { pointer-events: none; opacity: 0.7; filter: grayscale(0.5); }
+        .readonly { pointer-events: none; opacity: 0.7; }
         .shaking { animation: shake 0.3s infinite; }
         @keyframes shake { 0%, 100% { transform: translate(0); } 25% { transform: translate(-4px); } 75% { transform: translate(4px); } }
+        .display-goal-text { font-size: 1.1rem; font-weight: bold; color: #333; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 8px; white-space: pre-wrap; }
+        .input-group { margin-bottom: 10px; flex: 1; }
+        label { font-size: 0.9rem; font-weight: bold; display: block; margin-bottom: 5px; }
+        textarea:disabled, input:disabled { background: #f9f9f9; color: #666; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -72,79 +59,95 @@
 <section id="tab-0" class="content-section active">
     <h2>🗓 2026 年度願景板</h2>
     <div class="dual-layout">
-        <div class="user-box box-chuchu card" id="year-chuchu">
+        <div class="user-box box-chuchu card">
             <h3>chuchu 年度目標</h3>
-            <textarea id="annual-A" style="width:100%; height:200px;" placeholder="輸入年度目標..." onchange="syncAnnual('A')"></textarea>
+            <div id="annual-display-chuchu" class="display-goal-text" style="display:none; min-height:100px;"></div>
+            <div id="annual-input-box-chuchu">
+                <textarea id="annual-input-chuchu" style="width:100%; height:200px;" placeholder="寫下年度大目標..."></textarea>
+                <button onclick="saveAnnual('chuchu')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存年度目標</button>
+            </div>
+            <button id="annual-edit-chuchu" onclick="unlockAnnual('chuchu')" style="display:none; width:100%; margin-top:5px;">修改年度目標</button>
         </div>
-        <div class="user-box box-eddie card" id="year-eddie">
+        <div class="user-box box-eddie card">
             <h3>Eddie 年度目標</h3>
-            <textarea id="annual-B" style="width:100%; height:200px;" placeholder="輸入年度目標..." onchange="syncAnnual('B')"></textarea>
+            <div id="annual-display-eddie" class="display-goal-text" style="display:none; min-height:100px;"></div>
+            <div id="annual-input-box-eddie">
+                <textarea id="annual-input-eddie" style="width:100%; height:200px;" placeholder="寫下年度大目標..."></textarea>
+                <button onclick="saveAnnual('eddie')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存年度目標</button>
+            </div>
+            <button id="annual-edit-eddie" onclick="unlockAnnual('eddie')" style="display:none; width:100%; margin-top:5px;">修改年度目標</button>
         </div>
     </div>
 </section>
 
 <section id="tab-1" class="content-section">
-    <div class="header-goal" id="phase-title-setting">請選擇一個階段進行設定</div>
+    <div class="header-goal" id="phase-title-setting">請選擇一個階段</div>
     <div class="dual-layout">
-        <div class="user-box box-chuchu card" id="panel-grid-A">
-            <h3>chuchu 歷程網格</h3>
+        <div class="user-box box-chuchu card">
+            <h3>chuchu 階段設定</h3>
             <div class="grid-36" id="gridA"></div>
-            <div id="configA" style="display:none; margin-top:20px;">
-                <h4>階段配置 (chuchu)</h4>
-                <div class="input-group">
-                    <label>10天目標內容</label>
-                    <input type="text" id="targetA" style="width:100%">
-                </div>
-                <div style="display:flex; gap:10px;">
+            <div id="config-A" style="display:none; margin-top:15px;">
+                <div id="goal-display-A" class="display-goal-text"></div>
+                <div id="goal-input-A">
                     <div class="input-group">
-                        <label>單位 (如:頁/次)</label>
-                        <input type="text" id="unitA">
+                        <label>10天目標內容</label>
+                        <input type="text" id="t-A" style="width:100%">
                     </div>
-                    <div class="input-group">
-                        <label>目標總量</label>
-                        <input type="number" id="totalA">
+                    <div style="display:flex; gap:10px;">
+                        <div class="input-group">
+                            <label>單位 (如:頁/次)</label>
+                            <input type="text" id="u-A">
+                        </div>
+                        <div class="input-group">
+                            <label>目標總量</label>
+                            <input type="number" id="l-A">
+                        </div>
                     </div>
+                    <button onclick="savePhase('chuchu')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存並開始</button>
                 </div>
-                <button onclick="saveAndGo()" style="width:100%; padding:10px; background:#333; color:white; border:none; border-radius:5px; cursor:pointer;">開始紀錄</button>
+                <button id="edit-btn-A" onclick="unlockEdit('A')" style="display:none; width:100%; margin-top:5px;">修改階段目標</button>
             </div>
         </div>
-        <div class="user-box box-eddie card" id="panel-grid-B">
-            <h3>Eddie 歷程網格</h3>
+        <div class="user-box box-eddie card">
+            <h3>Eddie 階段設定</h3>
             <div class="grid-36" id="gridB"></div>
-            <div id="configB" style="display:none; margin-top:20px;">
-                <h4>階段配置 (Eddie)</h4>
-                <div class="input-group">
-                    <label>10天目標內容</label>
-                    <input type="text" id="targetB" style="width:100%">
-                </div>
-                <div style="display:flex; gap:10px;">
+            <div id="config-B" style="display:none; margin-top:15px;">
+                <div id="goal-display-B" class="display-goal-text"></div>
+                <div id="goal-input-B">
                     <div class="input-group">
-                        <label>單位 (如:分鐘/次)</label>
-                        <input type="text" id="unitB">
+                        <label>10天目標內容</label>
+                        <input type="text" id="t-B" style="width:100%">
                     </div>
-                    <div class="input-group">
-                        <label>目標總量</label>
-                        <input type="number" id="totalB">
+                    <div style="display:flex; gap:10px;">
+                        <div class="input-group">
+                            <label>單位 (如:分鐘/次)</label>
+                            <input type="text" id="u-B">
+                        </div>
+                        <div class="input-group">
+                            <label>目標總量</label>
+                            <input type="number" id="l-B">
+                        </div>
                     </div>
+                    <button onclick="savePhase('eddie')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存並開始</button>
                 </div>
-                <button onclick="saveAndGo()" style="width:100%; padding:10px; background:#333; color:white; border:none; border-radius:5px; cursor:pointer;">開始紀錄</button>
+                <button id="edit-btn-B" onclick="unlockEdit('B')" style="display:none; width:100%; margin-top:5px;">修改階段目標</button>
             </div>
         </div>
     </div>
 </section>
 
 <section id="tab-2" class="content-section">
-    <div id="current-info" class="header-goal">2026 gogo!</div>
+    <div id="current-info-display" class="header-goal">2026 gogo!</div>
     <div class="dual-layout">
         <div class="user-box box-chuchu card" id="main-chuchu">
-            <h3>chuchu 進度：<span id="prog-text-A">0%</span></h3>
+            <h4 id="today-goal-A">chuchu 的目標</h4>
             <div class="progress-container"><div id="bar-A" class="progress-bar"></div></div>
             <p id="sum-text-A">目前累積：0 / 0</p>
             <div id="listA"></div>
             <button id="nudge-chuchu" class="nudge-btn" onclick="sendNudge('chuchu')">⚠️ 敲敲 chuchu！</button>
         </div>
         <div class="user-box box-eddie card" id="main-eddie">
-            <h3>Eddie 進度：<span id="prog-text-B">0%</span></h3>
+            <h4 id="today-goal-B">Eddie 的目標</h4>
             <div class="progress-container"><div id="bar-B" class="progress-bar"></div></div>
             <p id="sum-text-B">目前累積：0 / 0</p>
             <div id="listB"></div>
@@ -155,7 +158,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDCQ4mB8c0V57ymosTIg7ihdx7IUZMT4_M",
@@ -168,9 +171,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
     let me = "";
-    let selectedPhase = 1;
+    let selectedP = 1;
     const startDate = new Date("2026-01-17");
 
     const goalExamples = [
@@ -185,16 +187,20 @@
     window.startApp = (user) => {
         me = user;
         document.getElementById('identity-screen').style.display = 'none';
+        
+        const today = new Date();
+        const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        selectedP = (diffDays >= 0) ? Math.min(Math.floor(diffDays / 10) + 1, 36) : 1;
+
         initGrids();
-        applyPermissions();
         listenToCloud();
-        renderDaily('A'); renderDaily('B');
+        applyPermissions();
+        loadPhaseData(selectedP);
+        showTab(2);
     };
 
     function applyPermissions() {
         const isC = (me === 'chuchu');
-        document.getElementById('annual-A').disabled = !isC;
-        document.getElementById('annual-B').disabled = isC;
         document.getElementById('listA').classList.toggle('readonly', !isC);
         document.getElementById('listB').classList.toggle('readonly', isC);
         document.getElementById('nudge-eddie').style.display = isC ? "block" : "none";
@@ -207,86 +213,178 @@
             container.innerHTML = "";
             for (let i = 1; i <= 36; i++) {
                 const btn = document.createElement('div');
-                btn.className = 'phase-btn';
-                let d1 = new Date(startDate); d1.setDate(startDate.getDate() + (i-1)*10);
-                let d10 = new Date(d1); d10.setDate(d1.getDate() + 9);
-                btn.innerHTML = `<b>P${i}</b><br><small>${d1.getMonth()+1}/${d1.getDate()}~${d10.getMonth()+1}/${d10.getDate()}</small>`;
+                btn.className = 'phase-btn' + (i === selectedP ? ' selected' : '');
+                let d = new Date(startDate); d.setDate(startDate.getDate() + (i-1)*10);
+                let d10 = new Date(d); d10.setDate(d.getDate() + 9);
+                btn.innerHTML = `<b>P${i}</b><br><small>${d.getMonth()+1}/${d.getDate()}~${d10.getMonth()+1}/${d10.getDate()}</small>`;
                 btn.onclick = () => {
-                    selectedPhase = i;
+                    selectedP = i;
                     document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
-                    document.getElementById('phase-title-setting').innerText = `正在設定：第 ${i} 階段`;
-                    const prefix = (id === 'gridA') ? 'A' : 'B';
-                    if((prefix==='A' && me==='chuchu') || (prefix==='B' && me==='eddie')) {
-                        document.getElementById('config' + prefix).style.display = 'block';
-                        const ex = goalExamples[Math.floor(Math.random() * goalExamples.length)];
-                        document.getElementById('target'+prefix).placeholder = "範例：" + ex.title;
-                        document.getElementById('unit'+prefix).placeholder = ex.unit;
-                        document.getElementById('total'+prefix).placeholder = ex.total;
-                    }
+                    loadPhaseData(i);
                 };
                 container.appendChild(btn);
             }
         });
     }
 
-    window.saveAndGo = () => {
-        const prefix = me === 'chuchu' ? 'A' : 'B';
-        const tIn = document.getElementById('target'+prefix);
-        const uIn = document.getElementById('unit'+prefix);
-        const lIn = document.getElementById('total'+prefix);
+    // --- 年度目標邏輯 ---
+    window.saveAnnual = async (user) => {
+        const val = document.getElementById(`annual-input-${user}`).value;
+        await setDoc(doc(db, "gogo", "global"), { [`annual_${user}`]: val }, { merge: true });
+    };
+
+    window.unlockAnnual = (user) => {
+        if (me !== user) return;
+        document.getElementById(`annual-input-box-${user}`).style.display = 'block';
+        document.getElementById(`annual-display-${user}`).style.display = 'none';
+        document.getElementById(`annual-edit-${user}`).style.display = 'none';
+    };
+
+    function updateAnnualUI(user, val) {
+        const display = document.getElementById(`annual-display-${user}`);
+        const inputBox = document.getElementById(`annual-input-box-${user}`);
+        const editBtn = document.getElementById(`annual-edit-${user}`);
+        const input = document.getElementById(`annual-input-${user}`);
+
+        if (val) {
+            display.innerText = val;
+            display.style.display = 'block';
+            inputBox.style.display = 'none';
+            editBtn.style.display = (me === user) ? 'block' : 'none';
+        } else {
+            display.style.display = 'none';
+            inputBox.style.display = (me === user) ? 'block' : 'none';
+            editBtn.style.display = 'none';
+        }
+        input.value = val || "";
+    }
+
+    // --- 階段目標邏輯 ---
+    async function loadPhaseData(p) {
+        document.getElementById('phase-title-setting').innerText = `正在設定：第 ${p} 階段`;
+        document.getElementById('config-A').style.display = 'block';
+        document.getElementById('config-B').style.display = 'block';
+        
+        const snap = await getDoc(doc(db, "gogo", `phase_${p}`));
+        const data = snap.exists() ? snap.data() : {};
+        
+        updatePhaseUI('A', data.chuchu);
+        updatePhaseUI('B', data.eddie);
+        renderDaily('A', data.chuchu, data[`recordsA_${p}`]);
+        renderDaily('B', data.eddie, data[`recordsB_${p}`]);
+    }
+
+    function updatePhaseUI(suffix, pData) {
+        const display = document.getElementById(`goal-display-${suffix}`);
+        const inputArea = document.getElementById(`goal-input-${suffix}`);
+        const editBtn = document.getElementById(`edit-btn-${suffix}`);
+        const myName = (suffix === 'A' ? 'chuchu' : 'Eddie');
+
+        if (pData && pData.target) {
+            display.innerText = `${pData.target} (${pData.total} ${pData.unit})`;
+            display.style.display = 'block';
+            inputArea.style.display = 'none';
+            editBtn.style.display = (me === myName) ? 'block' : 'none';
+            document.getElementById(`today-goal-${suffix}`).innerText = `${myName} 的目標：${pData.target}`;
+        } else {
+            display.style.display = 'none';
+            inputArea.style.display = (me === myName) ? 'block' : 'none';
+            editBtn.style.display = 'none';
+            document.getElementById(`today-goal-${suffix}`).innerText = "尚未設定目標";
+            
+            const ex = goalExamples[Math.floor(Math.random() * goalExamples.length)];
+            document.getElementById(`t-${suffix}`).placeholder = "範例：" + ex.title;
+            document.getElementById(`u-${suffix}`).placeholder = ex.unit;
+            document.getElementById(`l-${suffix}`).placeholder = ex.total;
+        }
+    }
+
+    window.unlockEdit = (suffix) => {
+        document.getElementById(`goal-input-${suffix}`).style.display = 'block';
+        document.getElementById(`goal-display-${suffix}`).style.display = 'none';
+        document.getElementById(`edit-btn-${suffix}`).style.display = 'none';
+    };
+
+    window.savePhase = async (user) => {
+        const suffix = user === 'chuchu' ? 'A' : 'B';
+        const tIn = document.getElementById(`t-${suffix}`);
+        const uIn = document.getElementById(`u-${suffix}`);
+        const lIn = document.getElementById(`l-${suffix}`);
         const target = tIn.value || tIn.placeholder.replace("範例：", "");
         const unit = uIn.value || uIn.placeholder;
         const total = lIn.value || lIn.placeholder;
-        document.getElementById('current-info').innerText = `第 ${selectedPhase} 階段 - 當前目標: ${target}`;
-        renderDaily(prefix, unit, total);
+        await setDoc(doc(db, "gogo", `phase_${selectedP}`), {
+            [user]: { target, unit, total }
+        }, { merge: true });
+        loadPhaseData(selectedP);
         showTab(2);
     };
 
-    window.renderDaily = (prefix, unit = "值", total = 0) => {
-        const container = document.getElementById('list' + prefix);
+    // --- 每日紀錄邏輯 ---
+    window.renderDaily = (suffix, pData, savedRecords) => {
+        const container = document.getElementById('list' + suffix);
         container.innerHTML = "";
-        let phaseStart = new Date(startDate); phaseStart.setDate(startDate.getDate() + (selectedPhase - 1) * 10);
+        const unit = pData?.unit || "值";
+        const total = pData?.total || 0;
+        const isEditable = (me === (suffix === 'A' ? 'chuchu' : 'Eddie'));
+        let phaseStart = new Date(startDate); phaseStart.setDate(startDate.getDate() + (selectedP - 1) * 10);
+        
         for (let d = 0; d < 10; d++) {
+            const savedNote = savedRecords?.[d]?.note || "";
+            const savedVal = savedRecords?.[d]?.val || "";
             let dDate = new Date(phaseStart); dDate.setDate(phaseStart.getDate() + d);
             const dateStr = `${dDate.getMonth()+1}/${dDate.getDate()} (${["日","一","二","三","四","五","六"][dDate.getDay()]})`;
-            container.innerHTML += `<div class="day-row"><div class="day-info">Day ${d+1}<br>${dateStr}</div><textarea class="day-diary" placeholder="寫日記..."></textarea><input type="number" class="day-value-input" placeholder="0" oninput="updateProgressUI('${prefix}', ${total})"><span style="font-size:0.7rem; align-self:center;">${unit}</span></div>`;
+            
+            container.innerHTML += `
+                <div class="day-row">
+                    <div style="font-size:0.8rem; width:80px;">D${d+1}<br>${dateStr}</div>
+                    <textarea ${!isEditable ? 'disabled' : ''} onchange="saveDayRecord('${suffix}', ${d})" style="flex:1; height:40px;" placeholder="寫日記...">${savedNote}</textarea>
+                    <input type="number" ${!isEditable ? 'disabled' : ''} oninput="updateProgUI('${suffix}', ${total})" onchange="saveDayRecord('${suffix}', ${d})" style="width:50px;" placeholder="0" value="${savedVal}">
+                    <span style="font-size:0.7rem; align-self:center;">${unit}</span>
+                </div>`;
         }
-        updateProgressUI(prefix, total);
+        updateProgUI(suffix, total);
+        document.getElementById('current-info-display').innerText = `正在查看：第 ${selectedP} 階段`;
     };
 
-    window.updateProgressUI = (prefix, total) => {
-        const inputs = document.querySelectorAll(`#list${prefix} .day-value-input`);
+    window.saveDayRecord = async (suffix, dayIdx) => {
+        const rows = document.querySelectorAll(`#list${suffix} .day-row`);
+        const note = rows[dayIdx].querySelector('textarea').value;
+        const val = rows[dayIdx].querySelector('input').value;
+        const docRef = doc(db, "gogo", `phase_${selectedP}`);
+        const snap = await getDoc(docRef);
+        let currentData = snap.exists() ? snap.data() : {};
+        let records = currentData[`records${suffix}_${selectedPhase}`] || currentData[`records${suffix}_${selectedP}`] || {};
+        records[dayIdx] = { note, val };
+        await setDoc(docRef, { [`records${suffix}_${selectedP}`]: records }, { merge: true });
+    };
+
+    window.updateProgUI = (s, total) => {
+        const inputs = document.querySelectorAll(`#list${s} input`);
         let sum = 0; inputs.forEach(i => sum += Number(i.value || 0));
         const percent = total > 0 ? Math.min(Math.round((sum / total) * 100), 100) : 0;
-        document.getElementById(`bar-${prefix}`).style.width = percent + "%";
-        document.getElementById(`prog-text-${prefix}`).innerText = percent + "%";
-        document.getElementById(`sum-text-${prefix}`).innerText = `目前累積：${sum} / ${total}`;
+        document.getElementById(`bar-${s}`).style.width = percent + "%";
+        document.getElementById(`sum-text-${s}`).innerText = `目前累積：${sum} / ${total}`;
     };
 
-    // Firebase 連動
-    async function listenToCloud() {
-        onSnapshot(doc(db, "gogo", "data"), (docSnap) => {
-            if (!docSnap.exists()) return;
-            const data = docSnap.data();
-            if(data.annualA) document.getElementById('annual-A').value = data.annualA;
-            if(data.annualB) document.getElementById('annual-B').value = data.annualB;
+    function listenToCloud() {
+        onSnapshot(doc(db, "gogo", "global"), (snap) => {
+            if (!snap.exists()) return;
+            const data = snap.data();
+            updateAnnualUI('chuchu', data.annual_chuchu);
+            updateAnnualUI('eddie', data.annual_eddie);
             if(data.nudgeTarget === me) {
                 const panel = document.getElementById('main-' + me);
                 panel.classList.add('shaking');
                 setTimeout(() => panel.classList.remove('shaking'), 3000);
-                updateDoc(doc(db, "gogo", "data"), { nudgeTarget: null });
+                updateDoc(doc(db, "gogo", "global"), { nudgeTarget: null });
             }
         });
     }
 
-    window.syncAnnual = async (p) => {
-        const val = document.getElementById(`annual-${p}`).value;
-        await setDoc(doc(db, "gogo", "data"), { [`annual${p}`]: val }, { merge: true });
-    };
-
     window.sendNudge = async (target) => {
-        await updateDoc(doc(db, "gogo", "data"), { nudgeTarget: target });
+        await updateDoc(doc(db, "gogo", "global"), { nudgeTarget: target });
         alert("已發送提醒！");
     };
 
