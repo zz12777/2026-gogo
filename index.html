@@ -19,8 +19,15 @@
         .content-section { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; }
         .content-section.active { display: block; }
         .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        /* 佈局核心：使用 order 控制順序 */
         .dual-layout { display: flex; gap: 20px; flex-wrap: wrap; }
         .user-box { flex: 1; min-width: 320px; border-radius: 15px; }
+        
+        /* 當身份是 Eddie 時，給予不同的 order 值 */
+        .order-first { order: -1; }
+        .order-last { order: 1; }
+
         .box-chuchu { background-color: var(--chuchu-bg); border-top: 8px solid var(--chuchu-main); }
         .box-eddie { background-color: var(--eddie-bg); border-top: 8px solid var(--eddie-main); }
         .grid-36 { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 15px; }
@@ -57,8 +64,8 @@
 
 <section id="tab-0" class="content-section active">
     <h2>🗓 2026 年度願景板</h2>
-    <div class="dual-layout">
-        <div class="user-box box-chuchu card">
+    <div class="dual-layout" id="layout-0">
+        <div class="user-box box-chuchu card" id="box-annual-chuchu">
             <h3>chuchu 年度目標</h3>
             <div id="annual-display-chuchu" class="display-goal-text" style="display:none; min-height:100px;"></div>
             <div id="annual-input-box-chuchu">
@@ -67,7 +74,7 @@
             </div>
             <button id="annual-edit-chuchu" onclick="unlockAnnual('chuchu')" style="display:none; width:100%; margin-top:5px;">修改年度目標</button>
         </div>
-        <div class="user-box box-eddie card">
+        <div class="user-box box-eddie card" id="box-annual-eddie">
             <h3>Eddie 年度目標</h3>
             <div id="annual-display-eddie" class="display-goal-text" style="display:none; min-height:100px;"></div>
             <div id="annual-input-box-eddie">
@@ -81,8 +88,8 @@
 
 <section id="tab-1" class="content-section">
     <div class="header-goal" id="phase-title-setting">請選擇一個階段</div>
-    <div class="dual-layout">
-        <div class="user-box box-chuchu card">
+    <div class="dual-layout" id="layout-1">
+        <div class="user-box box-chuchu card" id="box-phase-chuchu">
             <h3>chuchu 階段設定</h3>
             <div class="grid-36" id="gridA"></div>
             <div id="config-A" style="display:none; margin-top:15px;">
@@ -98,7 +105,7 @@
                 <button id="edit-btn-A" onclick="unlockEdit('A')" style="display:none; width:100%; margin-top:5px;">修改階段目標</button>
             </div>
         </div>
-        <div class="user-box box-eddie card">
+        <div class="user-box box-eddie card" id="box-phase-eddie">
             <h3>Eddie 階段設定</h3>
             <div class="grid-36" id="gridB"></div>
             <div id="config-B" style="display:none; margin-top:15px;">
@@ -119,7 +126,7 @@
 
 <section id="tab-2" class="content-section">
     <div id="current-info-display" class="header-goal">正在載入數據...</div>
-    <div class="dual-layout">
+    <div class="dual-layout" id="layout-2">
         <div class="user-box box-chuchu card" id="main-chuchu">
             <h4 id="today-goal-A">chuchu 的目標</h4>
             <div class="progress-container"><div id="bar-A" class="progress-bar"></div></div>
@@ -171,6 +178,18 @@
         const today = new Date();
         const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
         selectedP = (diffDays >= 0) ? Math.min(Math.floor(diffDays / 10) + 1, 36) : 1;
+        
+        // --- 核心改動：調整區塊順序 ---
+        if (me === 'eddie') {
+            document.getElementById('box-annual-eddie').classList.add('order-first');
+            document.getElementById('box-phase-eddie').classList.add('order-first');
+            document.getElementById('main-eddie').classList.add('order-first');
+        } else {
+            document.getElementById('box-annual-chuchu').classList.add('order-first');
+            document.getElementById('box-phase-chuchu').classList.add('order-first');
+            document.getElementById('main-chuchu').classList.add('order-first');
+        }
+
         initGrids();
         listenToCloud();
         applyPermissions();
@@ -209,13 +228,11 @@
 
     async function loadPhaseData(p) {
         document.getElementById('phase-title-setting').innerText = `正在設定：第 ${p} 階段`;
-        document.getElementById('config-A').style.display = 'block';
-        document.getElementById('config-B').style.display = 'block';
         const snap = await getDoc(doc(db, "gogo", `phase_${p}`));
         const data = snap.exists() ? snap.data() : {};
         updatePhaseUI('A', data.chuchu);
         updatePhaseUI('B', data.eddie);
-        renderDaily('A', data.chuchu, data[`recordsA`]); // 修正路徑命名
+        renderDaily('A', data.chuchu, data[`recordsA`]);
         renderDaily('B', data.eddie, data[`recordsB`]);
     }
 
@@ -287,14 +304,10 @@
         const note = rows[dayIdx].querySelector('textarea').value;
         const val = rows[dayIdx].querySelector('input').value;
         const docRef = doc(db, "gogo", `phase_${selectedP}`);
-        
-        // 先抓取目前所有紀錄
         const snap = await getDoc(docRef);
         let currentData = snap.exists() ? snap.data() : {};
         let records = currentData[`records${suffix}`] || {};
         records[dayIdx] = { note, val };
-        
-        // 存回 Firebase
         await updateDoc(docRef, { [`records${suffix}`]: records });
     };
 
