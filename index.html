@@ -30,14 +30,13 @@
         .progress-container { background: #eee; border-radius: 20px; height: 15px; width: 100%; margin: 10px 0; overflow: hidden; }
         .progress-bar { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
         .header-goal { background: #333; color: white; padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 15px; }
-        .nudge-btn { background: var(--warn); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: none; margin: 10px auto; font-weight: bold; }
-        .readonly { pointer-events: none; opacity: 0.7; }
-        .shaking { animation: shake 0.3s infinite; }
-        @keyframes shake { 0%, 100% { transform: translate(0); } 25% { transform: translate(-4px); } 75% { transform: translate(4px); } }
-        .display-goal-text { font-size: 1.1rem; font-weight: bold; color: #333; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 8px; white-space: pre-wrap; }
         .input-group { margin-bottom: 10px; flex: 1; }
         label { font-size: 0.9rem; font-weight: bold; display: block; margin-bottom: 5px; }
+        .display-goal-text { font-size: 1.1rem; font-weight: bold; color: #333; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 8px; white-space: pre-wrap; }
         textarea:disabled, input:disabled { background: #f9f9f9; color: #666; cursor: not-allowed; }
+        .nudge-btn { background: var(--warn); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: none; margin: 10px auto; font-weight: bold; }
+        .shaking { animation: shake 0.3s infinite; }
+        @keyframes shake { 0%, 100% { transform: translate(0); } 25% { transform: translate(-4px); } 75% { transform: translate(4px); } }
     </style>
 </head>
 <body>
@@ -89,21 +88,12 @@
             <div id="config-A" style="display:none; margin-top:15px;">
                 <div id="goal-display-A" class="display-goal-text"></div>
                 <div id="goal-input-A">
-                    <div class="input-group">
-                        <label>10天目標內容</label>
-                        <input type="text" id="t-A" style="width:100%">
-                    </div>
+                    <div class="input-group"><label>10天目標內容</label><input type="text" id="t-A" style="width:100%"></div>
                     <div style="display:flex; gap:10px;">
-                        <div class="input-group">
-                            <label>單位 (如:頁/次)</label>
-                            <input type="text" id="u-A">
-                        </div>
-                        <div class="input-group">
-                            <label>目標總量</label>
-                            <input type="number" id="l-A">
-                        </div>
+                        <div class="input-group"><label>單位</label><input type="text" id="u-A"></div>
+                        <div class="input-group"><label>目標總量</label><input type="number" id="l-A"></div>
                     </div>
-                    <button onclick="savePhase('chuchu')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存並開始</button>
+                    <button onclick="savePhase('chuchu')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px;">儲存並開始</button>
                 </div>
                 <button id="edit-btn-A" onclick="unlockEdit('A')" style="display:none; width:100%; margin-top:5px;">修改階段目標</button>
             </div>
@@ -114,21 +104,12 @@
             <div id="config-B" style="display:none; margin-top:15px;">
                 <div id="goal-display-B" class="display-goal-text"></div>
                 <div id="goal-input-B">
-                    <div class="input-group">
-                        <label>10天目標內容</label>
-                        <input type="text" id="t-B" style="width:100%">
-                    </div>
+                    <div class="input-group"><label>10天目標內容</label><input type="text" id="t-B" style="width:100%"></div>
                     <div style="display:flex; gap:10px;">
-                        <div class="input-group">
-                            <label>單位 (如:分鐘/次)</label>
-                            <input type="text" id="u-B">
-                        </div>
-                        <div class="input-group">
-                            <label>目標總量</label>
-                            <input type="number" id="l-B">
-                        </div>
+                        <div class="input-group"><label>單位</label><input type="text" id="u-B"></div>
+                        <div class="input-group"><label>目標總量</label><input type="number" id="l-B"></div>
                     </div>
-                    <button onclick="savePhase('eddie')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">儲存並開始</button>
+                    <button onclick="savePhase('eddie')" style="width:100%; margin-top:10px; background:#333; color:white; border:none; padding:10px; border-radius:5px;">儲存並開始</button>
                 </div>
                 <button id="edit-btn-B" onclick="unlockEdit('B')" style="display:none; width:100%; margin-top:5px;">修改階段目標</button>
             </div>
@@ -137,7 +118,7 @@
 </section>
 
 <section id="tab-2" class="content-section">
-    <div id="current-info-display" class="header-goal">2026 gogo!</div>
+    <div id="current-info-display" class="header-goal">正在載入數據...</div>
     <div class="dual-layout">
         <div class="user-box box-chuchu card" id="main-chuchu">
             <h4 id="today-goal-A">chuchu 的目標</h4>
@@ -172,7 +153,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let me = "";
-    let selectedP = 1;
+    let selectedP = 1; 
     const startDate = new Date("2026-01-17");
 
     const goalExamples = [
@@ -187,11 +168,9 @@
     window.startApp = (user) => {
         me = user;
         document.getElementById('identity-screen').style.display = 'none';
-        
         const today = new Date();
         const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
         selectedP = (diffDays >= 0) ? Math.min(Math.floor(diffDays / 10) + 1, 36) : 1;
-
         initGrids();
         listenToCloud();
         applyPermissions();
@@ -201,8 +180,8 @@
 
     function applyPermissions() {
         const isC = (me === 'chuchu');
-        document.getElementById('listA').classList.toggle('readonly', !isC);
-        document.getElementById('listB').classList.toggle('readonly', isC);
+        document.getElementById('listA').style.pointerEvents = isC ? 'auto' : 'none';
+        document.getElementById('listB').style.pointerEvents = isC ? 'none' : 'auto';
         document.getElementById('nudge-eddie').style.display = isC ? "block" : "none";
         document.getElementById('nudge-chuchu').style.display = isC ? "none" : "block";
     }
@@ -228,51 +207,16 @@
         });
     }
 
-    // --- 年度目標邏輯 ---
-    window.saveAnnual = async (user) => {
-        const val = document.getElementById(`annual-input-${user}`).value;
-        await setDoc(doc(db, "gogo", "global"), { [`annual_${user}`]: val }, { merge: true });
-    };
-
-    window.unlockAnnual = (user) => {
-        if (me !== user) return;
-        document.getElementById(`annual-input-box-${user}`).style.display = 'block';
-        document.getElementById(`annual-display-${user}`).style.display = 'none';
-        document.getElementById(`annual-edit-${user}`).style.display = 'none';
-    };
-
-    function updateAnnualUI(user, val) {
-        const display = document.getElementById(`annual-display-${user}`);
-        const inputBox = document.getElementById(`annual-input-box-${user}`);
-        const editBtn = document.getElementById(`annual-edit-${user}`);
-        const input = document.getElementById(`annual-input-${user}`);
-
-        if (val) {
-            display.innerText = val;
-            display.style.display = 'block';
-            inputBox.style.display = 'none';
-            editBtn.style.display = (me === user) ? 'block' : 'none';
-        } else {
-            display.style.display = 'none';
-            inputBox.style.display = (me === user) ? 'block' : 'none';
-            editBtn.style.display = 'none';
-        }
-        input.value = val || "";
-    }
-
-    // --- 階段目標邏輯 ---
     async function loadPhaseData(p) {
         document.getElementById('phase-title-setting').innerText = `正在設定：第 ${p} 階段`;
         document.getElementById('config-A').style.display = 'block';
         document.getElementById('config-B').style.display = 'block';
-        
         const snap = await getDoc(doc(db, "gogo", `phase_${p}`));
         const data = snap.exists() ? snap.data() : {};
-        
         updatePhaseUI('A', data.chuchu);
         updatePhaseUI('B', data.eddie);
-        renderDaily('A', data.chuchu, data[`recordsA_${p}`]);
-        renderDaily('B', data.eddie, data[`recordsB_${p}`]);
+        renderDaily('A', data.chuchu, data[`recordsA`]); // 修正路徑命名
+        renderDaily('B', data.eddie, data[`recordsB`]);
     }
 
     function updatePhaseUI(suffix, pData) {
@@ -280,19 +224,18 @@
         const inputArea = document.getElementById(`goal-input-${suffix}`);
         const editBtn = document.getElementById(`edit-btn-${suffix}`);
         const myName = (suffix === 'A' ? 'chuchu' : 'Eddie');
+        document.getElementById(`t-${suffix}`).value = "";
+        document.getElementById(`u-${suffix}`).value = "";
+        document.getElementById(`l-${suffix}`).value = "";
 
         if (pData && pData.target) {
             display.innerText = `${pData.target} (${pData.total} ${pData.unit})`;
-            display.style.display = 'block';
-            inputArea.style.display = 'none';
+            display.style.display = 'block'; inputArea.style.display = 'none';
             editBtn.style.display = (me === myName) ? 'block' : 'none';
             document.getElementById(`today-goal-${suffix}`).innerText = `${myName} 的目標：${pData.target}`;
         } else {
-            display.style.display = 'none';
-            inputArea.style.display = (me === myName) ? 'block' : 'none';
-            editBtn.style.display = 'none';
-            document.getElementById(`today-goal-${suffix}`).innerText = "尚未設定目標";
-            
+            display.style.display = 'none'; inputArea.style.display = (me === myName) ? 'block' : 'none';
+            editBtn.style.display = 'none'; document.getElementById(`today-goal-${suffix}`).innerText = "尚未設定目標";
             const ex = goalExamples[Math.floor(Math.random() * goalExamples.length)];
             document.getElementById(`t-${suffix}`).placeholder = "範例：" + ex.title;
             document.getElementById(`u-${suffix}`).placeholder = ex.unit;
@@ -300,20 +243,14 @@
         }
     }
 
-    window.unlockEdit = (suffix) => {
-        document.getElementById(`goal-input-${suffix}`).style.display = 'block';
-        document.getElementById(`goal-display-${suffix}`).style.display = 'none';
-        document.getElementById(`edit-btn-${suffix}`).style.display = 'none';
-    };
-
     window.savePhase = async (user) => {
         const suffix = user === 'chuchu' ? 'A' : 'B';
-        const tIn = document.getElementById(`t-${suffix}`);
-        const uIn = document.getElementById(`u-${suffix}`);
-        const lIn = document.getElementById(`l-${suffix}`);
-        const target = tIn.value || tIn.placeholder.replace("範例：", "");
-        const unit = uIn.value || uIn.placeholder;
-        const total = lIn.value || lIn.placeholder;
+        const t = document.getElementById(`t-${suffix}`);
+        const u = document.getElementById(`u-${suffix}`);
+        const l = document.getElementById(`l-${suffix}`);
+        const target = t.value || t.placeholder.replace("範例：", "");
+        const unit = u.value || u.placeholder;
+        const total = l.value || l.placeholder;
         await setDoc(doc(db, "gogo", `phase_${selectedP}`), {
             [user]: { target, unit, total }
         }, { merge: true });
@@ -321,7 +258,6 @@
         showTab(2);
     };
 
-    // --- 每日紀錄邏輯 ---
     window.renderDaily = (suffix, pData, savedRecords) => {
         const container = document.getElementById('list' + suffix);
         container.innerHTML = "";
@@ -329,18 +265,16 @@
         const total = pData?.total || 0;
         const isEditable = (me === (suffix === 'A' ? 'chuchu' : 'Eddie'));
         let phaseStart = new Date(startDate); phaseStart.setDate(startDate.getDate() + (selectedP - 1) * 10);
-        
         for (let d = 0; d < 10; d++) {
             const savedNote = savedRecords?.[d]?.note || "";
             const savedVal = savedRecords?.[d]?.val || "";
             let dDate = new Date(phaseStart); dDate.setDate(phaseStart.getDate() + d);
             const dateStr = `${dDate.getMonth()+1}/${dDate.getDate()} (${["日","一","二","三","四","五","六"][dDate.getDay()]})`;
-            
             container.innerHTML += `
                 <div class="day-row">
                     <div style="font-size:0.8rem; width:80px;">D${d+1}<br>${dateStr}</div>
-                    <textarea ${!isEditable ? 'disabled' : ''} onchange="saveDayRecord('${suffix}', ${d})" style="flex:1; height:40px;" placeholder="寫日記...">${savedNote}</textarea>
-                    <input type="number" ${!isEditable ? 'disabled' : ''} oninput="updateProgUI('${suffix}', ${total})" onchange="saveDayRecord('${suffix}', ${d})" style="width:50px;" placeholder="0" value="${savedVal}">
+                    <textarea ${!isEditable ? 'disabled' : ''} onchange="saveDayRecord('${suffix}', ${d})" style="flex:1; height:40px;">${savedNote}</textarea>
+                    <input type="number" ${!isEditable ? 'disabled' : ''} oninput="updateProgUI('${suffix}', ${total})" onchange="saveDayRecord('${suffix}', ${d})" style="width:50px;" value="${savedVal}">
                     <span style="font-size:0.7rem; align-self:center;">${unit}</span>
                 </div>`;
         }
@@ -353,11 +287,15 @@
         const note = rows[dayIdx].querySelector('textarea').value;
         const val = rows[dayIdx].querySelector('input').value;
         const docRef = doc(db, "gogo", `phase_${selectedP}`);
+        
+        // 先抓取目前所有紀錄
         const snap = await getDoc(docRef);
         let currentData = snap.exists() ? snap.data() : {};
-        let records = currentData[`records${suffix}_${selectedPhase}`] || currentData[`records${suffix}_${selectedP}`] || {};
+        let records = currentData[`records${suffix}`] || {};
         records[dayIdx] = { note, val };
-        await setDoc(docRef, { [`records${suffix}_${selectedP}`]: records }, { merge: true });
+        
+        // 存回 Firebase
+        await updateDoc(docRef, { [`records${suffix}`]: records });
     };
 
     window.updateProgUI = (s, total) => {
@@ -383,6 +321,32 @@
         });
     }
 
+    window.saveAnnual = async (user) => {
+        const val = document.getElementById(`annual-input-${user}`).value;
+        await setDoc(doc(db, "gogo", "global"), { [`annual_${user}`]: val }, { merge: true });
+    };
+
+    window.unlockAnnual = (user) => {
+        if (me !== user) return;
+        document.getElementById(`annual-input-box-${user}`).style.display = 'block';
+        document.getElementById(`annual-display-${user}`).style.display = 'none';
+        document.getElementById(`annual-edit-${user}`).style.display = 'none';
+    };
+
+    function updateAnnualUI(user, val) {
+        const display = document.getElementById(`annual-display-${user}`);
+        const inputBox = document.getElementById(`annual-input-box-${user}`);
+        const editBtn = document.getElementById(`annual-edit-${user}`);
+        const input = document.getElementById(`annual-input-${user}`);
+        if (val) {
+            display.innerText = val; display.style.display = 'block'; inputBox.style.display = 'none';
+            editBtn.style.display = (me === user) ? 'block' : 'none';
+        } else {
+            display.style.display = 'none'; inputBox.style.display = (me === user) ? 'block' : 'none'; editBtn.style.display = 'none';
+        }
+        input.value = val || "";
+    }
+
     window.sendNudge = async (target) => {
         await updateDoc(doc(db, "gogo", "global"), { nudgeTarget: target });
         alert("已發送提醒！");
@@ -392,7 +356,12 @@
         document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
         document.querySelectorAll('.content-section').forEach((s, idx) => s.classList.toggle('active', idx === i));
     };
+
+    window.unlockEdit = (suffix) => {
+        document.getElementById(`goal-input-${suffix}`).style.display = 'block';
+        document.getElementById(`goal-display-${suffix}`).style.display = 'none';
+        document.getElementById(`edit-btn-${suffix}`).style.display = 'none';
+    };
 </script>
 </body>
-
 </html>
